@@ -26,17 +26,15 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                     
                    
                     actionButton("addEntry", "Add New Data"),
-                    helpText("Click to insert new data "),
-                    br(),
-
-                    downloadButton("downloadData", "Download"),
-                    helpText("Click for download the data (.csv) ")
+                    helpText("Click to insert new data ")
+                    
                   ),
                   
                   # output for viewing
                   mainPanel(
                     
-                    DT::dataTableOutput("newDataRow")
+                    DT::dataTableOutput("newDataRow"),
+                    actionButton("deleteSelectedRows", "Delete Selected Rows")
                    # br(),
                    # rHandsontableOutput("newDataRow")
 
@@ -94,6 +92,13 @@ server <- function(input, output) {
     return(new_data_entered)
   })
   
+  observeEvent(input$deleteSelectedRows,{
+    if (!is.null(valuesToAdd[["new_data"]])) {
+      valuesToAdd$new_data <- valuesToAdd$new_data[-nrow(input$newDataOutputTable_rows_selected),]
+    }
+    
+  })
+  
   # process the text file and download
 
   
@@ -108,17 +113,7 @@ server <- function(input, output) {
   output$newDataRow <- DT::renderDataTable(
     valuesToAdd$new_data
   )
-  output$hot1 <- renderRHandsontable(input_df)
 
-  # download the file
-  output$downloadData <- downloadHandler(
-    filename = function() {
-      paste("DTI", "csv", sep = ".")
-    },
-    content = function(file) {
-      write.csv(mytable2(), file, row.names = FALSE)
-    }
-  )
   
 }
 
