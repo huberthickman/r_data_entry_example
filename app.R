@@ -1,9 +1,6 @@
 library(shiny)
 library(shinythemes)
 
-
-
-
 ui <- fluidPage(theme = shinytheme("sandstone"),
                 
                 # header
@@ -17,8 +14,6 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                     textInput("ncit_code", "NCIt code",""),
                     textInput("relational_str", "Relational",""),
                     textInput("obs_value", "Observation Value",""),
-                    
-                   
                     actionButton("addEntry", "Add New Data"),
                     helpText("Click to insert new data ")
                     
@@ -29,15 +24,10 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                     
                     DT::dataTableOutput("userEnteredData"),
                     actionButton("deleteSelectedRows", "Delete Selected Rows")
-                  
-
                     
                   )   
                 )
 )
-
-
-
 
 server <- function(input, output) {
 
@@ -47,25 +37,24 @@ server <- function(input, output) {
   # Process the input from the data entry fields into new_data element of the valuesToAdd reactive
   #
   
-  new_data_table <- observeEvent(input$addEntry,{  
+  observeEvent(input$addEntry, {
+    new_data_entered <- data.frame(
+      syn_pat_id = input$syn_pat_id,
+      ncit_code = input$ncit_code,
+      relational_str = input$relational_str,
+      obs_value = input$obs_value,
+      stringsAsFactors = FALSE
+    )
+    print(new_data_entered)
     
-    
-    new_data_entered <- data.frame(syn_pat_id = input$syn_pat_id, 
-                          ncit_code = input$ncit_code, 
-                          relational_str = input$relational_str, 
-                          obs_value = input$obs_value, 
-                          stringsAsFactors = FALSE)
-    print(new_data_entered)     
-                  
-   if (is.null(valuesToAdd[["new_data"]])) {
-     print("First data row in the dataframe")
-     valuesToAdd$new_data <- new_data_entered
-   } else {
-     print("adding to existing dataframe")
-     valuesToAdd$new_data <- rbind(valuesToAdd$new_data, new_data_entered)
-   }
-    
-    return(new_data_entered)
+    if (is.null(valuesToAdd[["new_data"]])) {
+      print("First data row in the dataframe")
+      valuesToAdd$new_data <- new_data_entered
+    } else {
+      print("adding to existing dataframe")
+      valuesToAdd$new_data <-
+        rbind(valuesToAdd$new_data, new_data_entered)
+    }
   })
   
   #
