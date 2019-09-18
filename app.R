@@ -67,20 +67,12 @@ server <- function(input, output) {
     }
     
   })
-  
 
-
-  
-  
-
-  
   # output as data table      
   output$userEnteredData <- DT::renderDataTable(valuesToAdd$new_data)
 
   
 }
 
-# Run the app ----------
-# ----------------------
 
 shinyApp(ui = ui, server = server)
