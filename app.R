@@ -1,13 +1,7 @@
 library(shiny)
-library(ggplot2)
-library(xlsx)
-#library(xlsxjars)
-#library(rJava)
 library(shinythemes)
-library(rhandsontable)
 
-# Define UI -----------
-# ---------------------
+
 
 
 ui <- fluidPage(theme = shinytheme("sandstone"),
@@ -33,10 +27,9 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                   # output for viewing
                   mainPanel(
                     
-                    DT::dataTableOutput("newDataRow"),
+                    DT::dataTableOutput("userEnteredData"),
                     actionButton("deleteSelectedRows", "Delete Selected Rows")
-                   # br(),
-                   # rHandsontableOutput("newDataRow")
+                  
 
                     
                   )   
@@ -44,26 +37,18 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
 )
 
 
-# Define server logic ------
-# --------------------------
+
 
 server <- function(input, output) {
-  input_df <- data.frame(syn_pat_id = character(0), 
-                   ncit_code = character(0), 
-                   relational_str = character(0), 
-                   obs_value = character(0),check.names = FALSE , stringsAsFactors = FALSE  )
-  
+
   valuesToAdd <- reactiveValues()
-  #valuesToAdd$new_data <- data.frame(syn_pat_id = character(0), 
-  ##                                   ncit_code = character(0), 
-  #                                   relational_str = character(0), 
-  #                                   obs_value = character(0),check.names = FALSE , stringsAsFactors = FALSE  )
+
+  #
+  # Process the input from the data entry fields into new_data element of the valuesToAdd reactive
+  #
   
-  # process the textinput
   new_data_table <- observeEvent(input$addEntry,{  
     
-    
-    # creating table
     
     new_data_entered <- data.frame(syn_pat_id = input$syn_pat_id, 
                           ncit_code = input$ncit_code, 
@@ -73,46 +58,35 @@ server <- function(input, output) {
     print(new_data_entered)     
                   
    if (is.null(valuesToAdd[["new_data"]])) {
-     print("NULL valuesToAdd dataframe")
-     
+     print("First data row in the dataframe")
      valuesToAdd$new_data <- new_data_entered
    } else {
      print("adding to existing dataframe")
      valuesToAdd$new_data <- rbind(valuesToAdd$new_data, new_data_entered)
-     
    }
-    
-    #print(valuesToAdd$newData)
-    
-   # browser()
-    #print(new_data_entered)
-    #input_df <- rbind(input_df, new_data_table())
-    #print(input_df)
     
     return(new_data_entered)
   })
   
-  observeEvent(input$deleteSelectedRows,{
-    if (!is.null(valuesToAdd[["new_data"]])) {
-      valuesToAdd$new_data <- valuesToAdd$new_data[-nrow(input$newDataOutputTable_rows_selected),]
+  #
+  # Process the delete button click, deleting the selected rows (if any) from the dataframe
+  #
+  observeEvent(input$deleteSelectedRows,
+    {
+    if (!is.null(input$userEnteredData_rows_selected) & !is.null(valuesToAdd[["new_data"]])) {
+      valuesToAdd$new_data <- valuesToAdd$new_data[-(input$userEnteredData_rows_selected),]
     }
     
   })
   
-  # process the text file and download
 
-  
-  # add new row (?)
-  
 
   
   
 
   
   # output as data table      
-  output$newDataRow <- DT::renderDataTable(
-    valuesToAdd$new_data
-  )
+  output$userEnteredData <- DT::renderDataTable(valuesToAdd$new_data)
 
   
 }
