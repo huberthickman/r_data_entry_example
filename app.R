@@ -10,7 +10,7 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                 sidebarLayout(
                   # sidebar for form
                   sidebarPanel(
-                    textInput("syn_pat_id", "Synthetic Participant ID",""),
+                    textInput("participant_id", "Participant ID",""),
                     textInput("ncit_code", "NCIt code",""),
                     textInput("relational_str", "Relational",""),
                     textInput("obs_value", "Observation Value",""),
@@ -39,7 +39,7 @@ server <- function(input, output) {
   
   observeEvent(input$addEntry, {
     new_data_entered <- data.frame(
-      syn_pat_id = input$syn_pat_id,
+      participant_id = input$participant_id,
       ncit_code = input$ncit_code,
       relational_str = input$relational_str,
       obs_value = input$obs_value,
