@@ -1,5 +1,6 @@
 library(shiny)
 library(shinythemes)
+library(DT)
 
 ui <- fluidPage(theme = shinytheme("sandstone"),
                 
@@ -9,7 +10,6 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                 sidebarLayout(
                   # sidebar for form
                   sidebarPanel(
-                    h3("Information",""),
                     textInput("syn_pat_id", "Synthetic Participant ID",""),
                     textInput("ncit_code", "NCIt code",""),
                     textInput("relational_str", "Relational",""),
@@ -22,7 +22,7 @@ ui <- fluidPage(theme = shinytheme("sandstone"),
                   # output for viewing
                   mainPanel(
                     
-                    DT::dataTableOutput("userEnteredData"),
+                    DTOutput("userEnteredData"),
                     actionButton("deleteSelectedRows", "Delete Selected Rows")
                     
                   )   
@@ -61,15 +61,31 @@ server <- function(input, output) {
   # Process the delete button click, deleting the selected rows (if any) from the dataframe
   #
   observeEvent(input$deleteSelectedRows,
-    {
-    if (!is.null(input$userEnteredData_rows_selected) & !is.null(valuesToAdd[["new_data"]])) {
-      valuesToAdd$new_data <- valuesToAdd$new_data[-(input$userEnteredData_rows_selected),]
-    }
+               {
+                 if (!is.null(input$userEnteredData_rows_selected) &
+                     !is.null(valuesToAdd[["new_data"]])) {
+                   valuesToAdd$new_data <-
+                     valuesToAdd$new_data[-(input$userEnteredData_rows_selected), ]
+                 }
+               })
     
+  # 
+  # Process the editing of a cell.  Get the new value and place it in the reactive dataframe
+  #
+  observeEvent(input$userEnteredData_cell_edit,
+  {
+    print("cell edit")
+    info = input$userEnteredData_cell_edit
+    str(info)
+    i = info$row
+    j = info$col
+    v = info$value
+    
+    valuesToAdd$new_data[i,j] = v
   })
-
+  
   # output as data table      
-  output$userEnteredData <- DT::renderDataTable(valuesToAdd$new_data)
+  output$userEnteredData <- renderDT(valuesToAdd$new_data, editable=TRUE)
 
   
 }
