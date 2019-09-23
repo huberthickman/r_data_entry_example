@@ -75,13 +75,13 @@ server <- function(input, output) {
   observeEvent(input$userEnteredData_cell_edit,
   {
     print("cell edit")
-    info = input$userEnteredData_cell_edit
+    info <- input$userEnteredData_cell_edit
     str(info)
-    i = info$row
-    j = info$col
-    v = info$value
+    i <- info$row
+    j <- info$col
+    v <- info$value
     
-    valuesToAdd$new_data[i,j] = v
+    valuesToAdd$new_data[i,j] <- v
   })
   
   # output as data table      
